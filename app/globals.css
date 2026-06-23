@@ -1,0 +1,375 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+:root {
+  --bg: #1a1228;
+  --panel: #2a1f3d;
+  --panel-light: #3a2c54;
+  --ink: #f3e9ff;
+  --accent: #ffd27a;
+  --green: #7bd88f;
+  --blue: #6ac3ff;
+  --pink: #ff8fb3;
+  --red: #ff6b6b;
+  --shadow: #0e0918;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: "Press Start 2P", system-ui, monospace;
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 20% 10%, #2a1f4d 0%, transparent 45%),
+    radial-gradient(circle at 80% 90%, #2d1a3a 0%, transparent 45%);
+  color: var(--ink);
+  -webkit-font-smoothing: none;
+  image-rendering: pixelated;
+  display: flex;
+  justify-content: center;
+  min-height: 100%;
+  padding: 16px;
+}
+
+.app {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Desktop: two-column layout with a big room on the left. */
+@media (min-width: 900px) {
+  body {
+    align-items: flex-start;
+    padding: 28px;
+  }
+  .app {
+    max-width: 1000px;
+  }
+  .title {
+    font-size: 30px;
+  }
+  .layout {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .col-left {
+    flex: 1.25;
+    position: sticky;
+    top: 28px;
+  }
+  .col-right {
+    flex: 1;
+  }
+  .stage canvas,
+  canvas.room {
+    width: 100%;
+  }
+}
+
+.title {
+  text-align: center;
+  font-size: 20px;
+  color: var(--accent);
+  text-shadow: 3px 3px 0 var(--shadow);
+  letter-spacing: 1px;
+  margin-top: 8px;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 8px;
+  color: var(--pink);
+  line-height: 1.6;
+}
+
+.panel {
+  background: var(--panel);
+  border: 4px solid var(--shadow);
+  box-shadow: 0 6px 0 var(--shadow);
+  padding: 14px;
+  border-radius: 2px;
+}
+
+/* ---- Pet stage ---- */
+.stage {
+  background: linear-gradient(#3a2c54, #271b3d);
+  border: 4px solid var(--shadow);
+  border-radius: 2px;
+  padding: 10px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.stage canvas {
+  image-rendering: pixelated;
+  width: 200px;
+  height: 200px;
+  max-width: 100%;
+}
+
+.stage .ground {
+  height: 10px;
+  margin: -6px 10px 0;
+  background: #4a3a1f;
+  border-top: 3px solid #6b5430;
+  border-radius: 2px;
+}
+
+.petname {
+  font-size: 12px;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.badges {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.badge {
+  font-size: 7px;
+  background: var(--panel-light);
+  border: 2px solid var(--shadow);
+  padding: 4px 6px;
+  border-radius: 2px;
+  color: var(--ink);
+}
+
+.badge.sunny {
+  color: var(--accent);
+}
+.badge.grumpy {
+  color: #b3a8c7;
+}
+
+/* ---- Room (interactive scene) ---- */
+.roomwrap {
+  padding: 8px;
+}
+canvas.room {
+  display: block;
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  border: 4px solid var(--shadow);
+  border-radius: 2px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+/* ---- Tool selector ---- */
+.tools {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+button.tool {
+  font-family: inherit;
+  font-size: 6px;
+  color: var(--ink);
+  background: var(--panel-light);
+  border: 3px solid var(--shadow);
+  box-shadow: 0 4px 0 var(--shadow);
+  padding: 8px 2px 6px;
+  cursor: pointer;
+  border-radius: 2px;
+  line-height: 1.5;
+  transition: transform 0.05s, box-shadow 0.05s;
+}
+button.tool:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--shadow);
+}
+button.tool.active {
+  border-color: var(--accent);
+  background: #4a3a2a;
+  color: var(--accent);
+}
+button.tool .ico {
+  font-size: 15px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ---- Stat bars ---- */
+.stat {
+  margin-bottom: 9px;
+}
+.stat:last-child {
+  margin-bottom: 0;
+}
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7px;
+  margin-bottom: 4px;
+}
+.bar {
+  height: 14px;
+  background: #1c1430;
+  border: 2px solid var(--shadow);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.bar > span {
+  display: block;
+  height: 100%;
+  transition: width 0.4s steps(8);
+}
+
+/* ---- Buttons ---- */
+.actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+button.btn {
+  font-family: inherit;
+  font-size: 9px;
+  color: var(--ink);
+  background: var(--panel-light);
+  border: 3px solid var(--shadow);
+  box-shadow: 0 4px 0 var(--shadow);
+  padding: 12px 6px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: transform 0.05s, box-shadow 0.05s;
+  line-height: 1.5;
+}
+button.btn:hover {
+  background: #46376a;
+}
+button.btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--shadow);
+}
+button.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+button.btn.wide {
+  grid-column: 1 / -1;
+  font-size: 8px;
+  padding: 9px;
+}
+
+.btn .ico {
+  font-size: 14px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+/* ---- Top bar ---- */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9px;
+}
+.coins {
+  color: var(--accent);
+}
+
+/* ---- Toast / message ---- */
+.toast {
+  text-align: center;
+  font-size: 8px;
+  color: var(--green);
+  min-height: 12px;
+  line-height: 1.5;
+}
+
+/* ---- Picker ---- */
+.picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+}
+.pick {
+  background: var(--panel-light);
+  border: 3px solid var(--shadow);
+  border-radius: 2px;
+  padding: 12px 6px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 8px;
+  transition: transform 0.05s;
+}
+.pick:hover {
+  transform: translateY(-2px);
+}
+.pick.selected {
+  border-color: var(--accent);
+  background: #4a3a2a;
+}
+.pick .face {
+  font-size: 30px;
+  display: block;
+  margin-bottom: 8px;
+}
+.pick .blurb {
+  font-size: 6px;
+  color: #c9b9e0;
+  line-height: 1.5;
+  margin-top: 6px;
+}
+
+input.namefield {
+  width: 100%;
+  font-family: inherit;
+  font-size: 10px;
+  padding: 12px;
+  background: #1c1430;
+  border: 3px solid var(--shadow);
+  color: var(--ink);
+  border-radius: 2px;
+  margin-bottom: 12px;
+}
+input.namefield:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.foot {
+  text-align: center;
+  font-size: 6px;
+  color: #7a6b95;
+  line-height: 1.8;
+}
+.link {
+  color: var(--blue);
+  cursor: pointer;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 6px;
+}
