@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { drawPetSprite, Species, Stage, Variant } from "@/lib/sprites";
 
-export type Tool = "hand" | "ball" | "food";
+export type Tool = "hand" | "ball" | "food" | "soap";
 
 interface Props {
   species: Species;
@@ -15,6 +15,7 @@ interface Props {
   onCatch: () => void;
   onEat: () => void;
   onTryFood: () => boolean; // returns true if coins were spent & bowl allowed
+  onClean: () => void;
 }
 
 // Internal logical resolution (scaled up by CSS for crisp pixels).
@@ -27,7 +28,7 @@ const FLOOR = { left: 30, right: W - 30, top: 104, bottom: H - 28 };
 const STAGE_PX: Record<Stage, number> = { baby: 4, teen: 5, adult: 6 };
 const SPEED = 74; // px per second
 
-type AI = "idle" | "walk" | "chase" | "goEat" | "eat" | "sleep";
+type AI = "idle" | "walk" | "chase" | "goEat" | "eat" | "sleep" | "bath";
 
 interface World {
   x: number;
@@ -102,10 +103,21 @@ export default function PetRoom(props: Props) {
         y > w.y - 16 * px - 8 &&
         y < w.y + 6
       ) {
-        if (w.time - w.lastPet > 0.4 && !p.asleep) {
-          w.lastPet = w.time;
-          w.emotes.push({ x: w.x, y: w.y - 16 * px, t: 0, txt: "❤️" });
-          p.onPet();
+        if (p.asleep) return;
+        
+        if (p.tool === "soap") {
+          if (w.time - w.lastPet > 0.4) {
+            w.lastPet = w.time;
+            w.ai = "bath";
+            w.aiT = 0;
+            p.onClean();
+          }
+        } else {
+          if (w.time - w.lastPet > 0.4) {
+            w.lastPet = w.time;
+            w.emotes.push({ x: w.x, y: w.y - 16 * px, t: 0, txt: "❤️" });
+            p.onPet();
+          }
         }
         return;
       }
@@ -122,6 +134,8 @@ export default function PetRoom(props: Props) {
         if (p.onTryFood()) {
           w.food = { x: fx, y: fy };
         }
+      } else if (p.tool === "soap") {
+        w.emotes.push({ x: fx, y: fy, t: 0, txt: "❓" });
       } else {
         // hand → call pet to walk here
         w.tx = fx;
@@ -204,6 +218,22 @@ export default function PetRoom(props: Props) {
         return;
       }
       if (w.ai === "sleep") w.ai = "idle";
+      
+      if (w.ai === "bath") {
+        if (Math.floor(w.aiT / 0.15) > Math.floor((w.aiT - dt) / 0.15)) {
+          w.emotes.push({ 
+            x: w.x + rand(-20, 20), 
+            y: w.y - rand(5, 16 * STAGE_PX[p.stage]), 
+            t: 0, 
+            txt: "🫧" 
+          });
+        }
+        if (w.aiT > 1.5) {
+          w.ai = "idle";
+          w.idleUntil = w.time + 0.5;
+        }
+        return;
+      }
 
       // Priorities: ball > food > called-walk > wander
       if (w.ball) {

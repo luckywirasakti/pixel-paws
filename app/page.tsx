@@ -52,6 +52,7 @@ const TOOLS: { id: Tool; icon: string; label: string }[] = [
   { id: "hand", icon: "👋", label: "Panggil" },
   { id: "ball", icon: "🎾", label: "Bola" },
   { id: "food", icon: "🍖", label: "Makan" },
+  { id: "soap", icon: "🧼", label: "Mandi" },
 ];
 
 function Onboarding({ onStart }: { onStart: (pet: PetState) => void }) {
@@ -154,7 +155,7 @@ export default function Home() {
       setPet((prev) => {
         if (!prev) return prev;
         const { pet: next, msg } = fn(prev);
-        flash(msg);
+        setTimeout(() => flash(msg), 0);
         return next;
       });
     },
@@ -163,20 +164,25 @@ export default function Home() {
 
   // Charge for food synchronously and report whether allowed.
   const tryFood = useCallback((): boolean => {
-    let ok = false;
+    if (!pet) return false;
+    const testPaid = payForFood(pet);
+    if (!testPaid) {
+      flash("Koin kurang buat beli makan! 🪙");
+      return false;
+    }
+    
     setPet((prev) => {
       if (!prev) return prev;
       const paid = payForFood(prev);
       if (!paid) {
-        flash("Koin kurang buat beli makan! 🪙");
+        setTimeout(() => flash("Koin kurang buat beli makan! 🪙"), 0);
         return prev;
       }
-      ok = true;
-      flash("Mangkok makan ditaruh 🍖 (-3🪙)");
+      setTimeout(() => flash("Mangkok makan ditaruh 🍖 (-3🪙)"), 0);
       return paid;
     });
-    return ok;
-  }, [flash]);
+    return true;
+  }, [pet, flash]);
 
   if (!ready) return null;
 
@@ -213,6 +219,7 @@ export default function Home() {
               onCatch={() => act(fetchBall)}
               onEat={() => act(eatMeal)}
               onTryFood={tryFood}
+              onClean={() => act(clean)}
             />
             <div className="badges">
               <span className="badge">{info.emoji} {info.label}</span>
@@ -244,9 +251,6 @@ export default function Home() {
             {t.label}
           </button>
         ))}
-        <button className="tool" onClick={() => act(clean)}>
-          <span className="ico">🛁</span>Mandiin
-        </button>
         <button className="tool" onClick={() => act(toggleSleep)}>
           <span className="ico">{pet.asleep ? "🌞" : "😴"}</span>
           {pet.asleep ? "Bangun" : "Tidur"}
