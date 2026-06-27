@@ -30,6 +30,7 @@ body {
   background-image:
     radial-gradient(circle at 20% 10%, #2a1f4d 0%, transparent 45%),
     radial-gradient(circle at 80% 90%, #2d1a3a 0%, transparent 45%);
+  background-attachment: fixed;
   color: var(--ink);
   -webkit-font-smoothing: none;
   image-rendering: pixelated;
@@ -41,7 +42,7 @@ body {
 
 .app {
   width: 100%;
-  max-width: 600px; /* Better size for mobile layout */
+  max-width: 600px; /* Kept compact so it always fits perfectly vertically! */
   margin: auto; /* This centers the app vertically and horizontally */
   display: flex;
   flex-direction: column;
@@ -65,24 +66,45 @@ body {
     padding: 28px;
   }
   .app {
-    max-width: 1200px; /* Let it scale bigger on desktop */
+    max-width: min(1200px, 160vh); /* Widens app, but scales down on short screens so it always fits vertically! */
   }
   .title {
     font-size: 30px;
   }
   .layout {
-    flex-direction: row;
-    align-items: flex-start;
+    flex-direction: row; /* Two columns */
+    align-items: stretch;
   }
   .col-left {
-    flex: 1.5; /* Takes more space for the room */
-    position: sticky;
-    top: 28px;
+    flex: 1.5; /* Game takes more space */
   }
   .col-right {
     flex: 1;
+    justify-content: center;
+    gap: 24px;
   }
-  .stage canvas,
+  button.tool {
+    font-size: 8px;
+    padding: 16px 4px 12px;
+  }
+  button.tool .ico {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .stat {
+    margin-bottom: 18px;
+  }
+  .stat-row {
+    font-size: 9px;
+    margin-bottom: 8px;
+  }
+  .bar {
+    height: 20px;
+  }
+  .topbar {
+    font-size: 11px;
+    padding: 6px;
+  }
   canvas.room {
     width: 100%;
   }
@@ -112,37 +134,7 @@ body {
   border-radius: 2px;
 }
 
-/* ---- Pet stage ---- */
-.stage {
-  background: linear-gradient(#3a2c54, #271b3d);
-  border: 4px solid var(--shadow);
-  border-radius: 2px;
-  padding: 10px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
 
-.stage canvas {
-  image-rendering: pixelated;
-  width: 200px;
-  height: 200px;
-  max-width: 100%;
-}
-
-.stage .ground {
-  height: 10px;
-  margin: -6px 10px 0;
-  background: #4a3a1f;
-  border-top: 3px solid #6b5430;
-  border-radius: 2px;
-}
-
-.petname {
-  font-size: 12px;
-  color: var(--accent);
-  margin-bottom: 4px;
-}
 
 .badges {
   display: flex;
@@ -175,8 +167,8 @@ body {
 canvas.room {
   display: block;
   width: 100%;
-  height: 55vh; /* Scale based on viewport height */
-  min-height: 300px;
+  height: auto;
+  aspect-ratio: 480 / 320;
   image-rendering: pixelated;
   border: 4px solid var(--shadow);
   border-radius: 2px;
@@ -184,11 +176,7 @@ canvas.room {
   touch-action: none;
 }
 
-@media (min-width: 900px) {
-  canvas.room {
-    height: 70vh;
-  }
-}
+
 
 /* ---- Tool selector ---- */
 .tools {

@@ -40,8 +40,6 @@ interface World {
   food: { x: number; y: number } | null;
   callMark: { x: number; y: number; t: number } | null;
   emotes: { x: number; y: number; t: number; txt: string }[];
-  W: number;
-  H: number;
 }
 
 function rand(min: number, max: number) {
@@ -70,8 +68,6 @@ export default function PetRoom(props: Props) {
     food: null,
     callMark: null,
     emotes: [],
-    W: 480,
-    H: 320,
   });
 
   // ---- input ----
@@ -81,10 +77,9 @@ export default function PetRoom(props: Props) {
 
     const toWorld = (clientX: number, clientY: number) => {
       const r = canvas.getBoundingClientRect();
-      const w = worldRef.current;
       return {
-        x: ((clientX - r.left) / r.width) * w.W,
-        y: ((clientY - r.top) / r.height) * w.H,
+        x: ((clientX - r.left) / r.width) * 480,
+        y: ((clientY - r.top) / r.height) * 320,
       };
     };
 
@@ -123,7 +118,7 @@ export default function PetRoom(props: Props) {
 
       if (p.asleep) return;
 
-      const FLOOR = { left: 30, right: w.W - 30, top: 104, bottom: w.H - 28 };
+      const FLOOR = { left: 30, right: 480 - 30, top: 104, bottom: 320 - 28 };
       
       // Clamp to floor.
       const fx = Math.max(FLOOR.left, Math.min(FLOOR.right, x));
@@ -178,14 +173,8 @@ export default function PetRoom(props: Props) {
       last = ts;
       if (dt > 0.05) dt = 0.05; // clamp after tab switch
       
-      const rect = canvas.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) {
-        const w = worldRef.current;
-        w.W = 480; // keep logical width constant
-        w.H = Math.round(w.W * (rect.height / rect.width));
-        canvas.width = w.W;
-        canvas.height = w.H;
-      }
+      canvas.width = 480;
+      canvas.height = 320;
       
       update(dt);
       render(ctx);
@@ -222,7 +211,7 @@ export default function PetRoom(props: Props) {
       }
 
       // keep pet within dynamic bounds
-      const FLOOR = { left: 30, right: w.W - 30, top: 104, bottom: w.H - 28 };
+      const FLOOR = { left: 30, right: 480 - 30, top: 104, bottom: 320 - 28 };
       w.x = Math.max(FLOOR.left, Math.min(FLOOR.right, w.x));
       w.y = Math.max(FLOOR.top, Math.min(FLOOR.bottom, w.y));
 
@@ -295,7 +284,7 @@ export default function PetRoom(props: Props) {
       // idle / wander
       w.ai = "idle";
       if (w.time > w.idleUntil) {
-        const FLOOR = { left: 30, right: w.W - 30, top: 104, bottom: w.H - 28 };
+        const FLOOR = { left: 30, right: 480 - 30, top: 104, bottom: 320 - 28 };
         // pick a new wander target
         const seed = w.time;
         const nx =
@@ -317,8 +306,8 @@ export default function PetRoom(props: Props) {
       
       ctx.imageSmoothingEnabled = false;
       
-      const W = w.W;
-      const H = w.H;
+      const W = 480;
+      const H = 320;
       const FLOOR = { left: 30, right: W - 30, top: 104, bottom: H - 28 };
 
       // ---- room ----

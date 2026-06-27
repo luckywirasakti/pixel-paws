@@ -192,31 +192,7 @@ export function payForFood(pet: PetState): PetState | null {
 
 // ---- Actions ----
 
-export function feed(pet: PetState): { pet: PetState; msg: string } {
-  if (pet.coins < 3) return { pet, msg: "Koin kurang buat beli makan!" };
-  if (pet.stats.hunger > 92) return { pet, msg: "Lagi kenyang, nggak mau makan." };
-  const s = { ...pet.stats };
-  s.hunger = clamp(s.hunger + 28);
-  s.happiness = clamp(s.happiness + 4);
-  s.cleanliness = clamp(s.cleanliness - 4);
-  return {
-    pet: { ...pet, stats: s, coins: pet.coins - 3 },
-    msg: `Nyam! ${SPECIES_INFO[pet.species].food} habis 😋`,
-  };
-}
 
-export function play(pet: PetState): { pet: PetState; msg: string } {
-  if (pet.asleep) return { pet, msg: "Lagi tidur, jangan diganggu 😴" };
-  if (pet.stats.energy < 12) return { pet, msg: "Capek banget, butuh tidur dulu." };
-  const s = { ...pet.stats };
-  s.happiness = clamp(s.happiness + 24);
-  s.energy = clamp(s.energy - 12);
-  s.hunger = clamp(s.hunger - 6);
-  return {
-    pet: { ...pet, stats: s, coins: pet.coins + 4 },
-    msg: "Main bareng seru! +4 koin 🪙",
-  };
-}
 
 export function clean(pet: PetState): { pet: PetState; msg: string } {
   if (pet.stats.cleanliness > 92) return { pet, msg: "Udah wangi kok ✨" };

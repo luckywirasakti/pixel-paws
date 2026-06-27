@@ -202,9 +202,26 @@ export default function Home() {
   const variant = variantOf(pet);
   const info = SPECIES_INFO[pet.species];
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
+
   return (
     <div className="app">
-      <h1 className="title">PIXELPAWS</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+        <h1 className="title">PIXELPAWS</h1>
+        <button 
+          onClick={toggleFullscreen} 
+          style={{ background: "none", border: "none", cursor: "pointer", fontSize: "24px", color: "var(--accent)" }}
+          title="Fullscreen"
+        >
+          🔲
+        </button>
+      </div>
 
       <div className="layout">
         <div className="col col-left">
