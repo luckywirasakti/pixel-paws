@@ -18,13 +18,7 @@ interface Props {
   onClean: () => void;
 }
 
-// Internal logical resolution (scaled up by CSS for crisp pixels).
-const W = 480;
-const H = 320;
-
-// Floor bounds the pet can roam within.
-const FLOOR = { left: 30, right: W - 30, top: 104, bottom: H - 28 };
-
+// Floor bounds the pet can roam within will be calculated dynamically.
 const STAGE_PX: Record<Stage, number> = { baby: 4, teen: 5, adult: 6 };
 const SPEED = 74; // px per second
 
@@ -46,6 +40,8 @@ interface World {
   food: { x: number; y: number } | null;
   callMark: { x: number; y: number; t: number } | null;
   emotes: { x: number; y: number; t: number; txt: string }[];
+  W: number;
+  H: number;
 }
 
 function rand(min: number, max: number) {
@@ -59,21 +55,23 @@ export default function PetRoom(props: Props) {
   propsRef.current = props;
 
   const worldRef = useRef<World>({
-    x: W / 2,
-    y: (FLOOR.top + FLOOR.bottom) / 2,
+    x: 240,
+    y: 200,
     face: 1,
     ai: "idle",
     aiT: 0,
     animT: 0,
     time: 0,
-    tx: W / 2,
-    ty: (FLOOR.top + FLOOR.bottom) / 2,
+    tx: 480 / 2,
+    ty: 200,
     idleUntil: 1.2,
     lastPet: -1,
     ball: null,
     food: null,
     callMark: null,
     emotes: [],
+    W: 480,
+    H: 320,
   });
 
   // ---- input ----
@@ -83,9 +81,10 @@ export default function PetRoom(props: Props) {
 
     const toWorld = (clientX: number, clientY: number) => {
       const r = canvas.getBoundingClientRect();
+      const w = worldRef.current;
       return {
-        x: ((clientX - r.left) / r.width) * W,
-        y: ((clientY - r.top) / r.height) * H,
+        x: ((clientX - r.left) / r.width) * w.W,
+        y: ((clientY - r.top) / r.height) * w.H,
       };
     };
 
@@ -124,6 +123,8 @@ export default function PetRoom(props: Props) {
 
       if (p.asleep) return;
 
+      const FLOOR = { left: 30, right: w.W - 30, top: 104, bottom: w.H - 28 };
+      
       // Clamp to floor.
       const fx = Math.max(FLOOR.left, Math.min(FLOOR.right, x));
       const fy = Math.max(FLOOR.top, Math.min(FLOOR.bottom, y));
@@ -167,10 +168,7 @@ export default function PetRoom(props: Props) {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    canvas.width = W;
-    canvas.height = H;
-    ctx.imageSmoothingEnabled = false;
-
+    
     let raf = 0;
     let last = 0;
 
@@ -179,6 +177,16 @@ export default function PetRoom(props: Props) {
       let dt = (ts - last) / 1000;
       last = ts;
       if (dt > 0.05) dt = 0.05; // clamp after tab switch
+      
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        const w = worldRef.current;
+        w.W = 480; // keep logical width constant
+        w.H = Math.round(w.W * (rect.height / rect.width));
+        canvas.width = w.W;
+        canvas.height = w.H;
+      }
+      
       update(dt);
       render(ctx);
       raf = requestAnimationFrame(step);
@@ -212,6 +220,11 @@ export default function PetRoom(props: Props) {
         w.callMark.t += dt;
         if (w.callMark.t > 0.8) w.callMark = null;
       }
+
+      // keep pet within dynamic bounds
+      const FLOOR = { left: 30, right: w.W - 30, top: 104, bottom: w.H - 28 };
+      w.x = Math.max(FLOOR.left, Math.min(FLOOR.right, w.x));
+      w.y = Math.max(FLOOR.top, Math.min(FLOOR.bottom, w.y));
 
       if (p.asleep) {
         w.ai = "sleep";
@@ -282,6 +295,7 @@ export default function PetRoom(props: Props) {
       // idle / wander
       w.ai = "idle";
       if (w.time > w.idleUntil) {
+        const FLOOR = { left: 30, right: w.W - 30, top: 104, bottom: w.H - 28 };
         // pick a new wander target
         const seed = w.time;
         const nx =
@@ -300,6 +314,12 @@ export default function PetRoom(props: Props) {
     const render = (ctx: CanvasRenderingContext2D) => {
       const w = worldRef.current;
       const p = propsRef.current;
+      
+      ctx.imageSmoothingEnabled = false;
+      
+      const W = w.W;
+      const H = w.H;
+      const FLOOR = { left: 30, right: W - 30, top: 104, bottom: H - 28 };
 
       // ---- room ----
       const wallH = FLOOR.top - 10;
